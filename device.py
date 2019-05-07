@@ -79,7 +79,8 @@ class Device(object):
 
     def set_device_info(self):
         self.device_info = dict()
-        self.device_info['os_name'] = platform.system()
+        os_name = platform.system()
+        self.device_info['os_name'] = os_name
         self.device_info['uuid'] = get_uuid(os_name)
         self.device_info['private_ip'] = get_private_ip(os_name)
         self.device_info['public_ip'] = get_public_ip()
