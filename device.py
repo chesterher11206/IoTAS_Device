@@ -54,7 +54,7 @@ class Device(object):
     def __init__(self, *args, **kwargs):
         self.init_status()
         self.init_config()
-        self.get_device_set()
+        self.set_device_info()
         self.set_mqtt()
         sensor_thread = threading.Thread(target=self.set_sensor)
         sensor_thread.daemon = True
