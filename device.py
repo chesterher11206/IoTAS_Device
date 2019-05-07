@@ -2,6 +2,7 @@ import os, sys, time, platform, socket
 import serial
 import threading
 import paho.mqtt.client as mqtt
+from urllib.request import urlopen
 
 
 def get_uuid(os_name):
