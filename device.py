@@ -132,7 +132,7 @@ class Device(object):
         while self.ser.in_waiting:
             if not self.status and not self.is_connect:
                 continue
-            data = str(ser.readline())
+            data = str(self.ser.readline())
             print("data ", data)
             if 'x' in data:
                 break
