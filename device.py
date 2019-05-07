@@ -135,7 +135,7 @@ class Device(object):
                 if not self.status and not self.is_connect:
                     continue
                 data = str(self.ser.readline())
-                print("data ", data)
+                # print("data ", data)
                 if 'x' in data:
                     break
                 else:                
