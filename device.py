@@ -129,58 +129,59 @@ class Device(object):
                 break
         self.sensor_list = sensor_name.split("+")
 
-        while self.ser.in_waiting:
-            if not self.status and not self.is_connect:
-                continue
-            data = str(self.ser.readline())
-            print("data ", data)
-            if 'x' in data:
-                break
-            else:                
-                if 'Humid' in data:
-                    data_split = data.split(",")
-                    #print(data_split)
-                    humid_value = data_split[0][12:]
-                    temp_value = data_split[1][13:-5]
-                    ticks = str(int(time.time()))
-                    humidtemp_dict = dict()
-                    humidtemp_dict['uuid'] = self.device_info['uuid']
-                    humidtemp_dict['humid'] = humid_value
-                    humidtemp_dict['temperature'] = temp_value
-                    # DHT_info = uuid + "," + humid_value + "," + temp_value
-                    # DHT_send = uuid + "," + humid_value + "," + temp_value + "," + str(ticks)                     
-                    #print(DHT_info)
-                    if self.conti == True:
-                        if ticks - self.prev_DHT >= self.freq_DHT:
-                            humidtemp_dict['time'] = ticks
-                            self.inform_client.publish("device/connect/sensor/DHT", payload=json.dumps(humidtemp_dict), qos=0)
-                            self.prev_DHT = ticks
-                    elif self.conti == False:
-                        if json.dumps(humidtemp_dict) != self.dht_comp:
-                            self.dht_comp = json.dumps(humidtemp_dict)
-                            humidtemp_dict['time'] = ticks
-                            self.inform_client.publish("device/connect/sensor/DHT", payload=json.dumps(humidtemp_dict), qos=0)
+        while True:
+            while self.ser.in_waiting:
+                if not self.status and not self.is_connect:
+                    continue
+                data = str(self.ser.readline())
+                print("data ", data)
+                if 'x' in data:
+                    break
+                else:                
+                    if 'Humid' in data:
+                        data_split = data.split(",")
+                        #print(data_split)
+                        humid_value = data_split[0][12:]
+                        temp_value = data_split[1][13:-5]
+                        ticks = str(int(time.time()))
+                        humidtemp_dict = dict()
+                        humidtemp_dict['uuid'] = self.device_info['uuid']
+                        humidtemp_dict['humid'] = humid_value
+                        humidtemp_dict['temperature'] = temp_value
+                        # DHT_info = uuid + "," + humid_value + "," + temp_value
+                        # DHT_send = uuid + "," + humid_value + "," + temp_value + "," + str(ticks)                     
+                        #print(DHT_info)
+                        if self.conti == True:
+                            if ticks - self.prev_DHT >= self.freq_DHT:
+                                humidtemp_dict['time'] = ticks
+                                self.inform_client.publish("device/connect/sensor/DHT", payload=json.dumps(humidtemp_dict), qos=0)
+                                self.prev_DHT = ticks
+                        elif self.conti == False:
+                            if json.dumps(humidtemp_dict) != self.dht_comp:
+                                self.dht_comp = json.dumps(humidtemp_dict)
+                                humidtemp_dict['time'] = ticks
+                                self.inform_client.publish("device/connect/sensor/DHT", payload=json.dumps(humidtemp_dict), qos=0)
 
-                elif 'Light' in data:
-                    light_value = data[9:-5]
-                    #value = "0"
-                    ticks = str(int(time.time()))
-                    light_dict = dict()
-                    light_dict['uuid'] = self.device_info['uuid']
-                    light_dict['light'] = light_value
-                    # light_info = uuid + "," + value
-                    # light_send = uuid + "," + value + "," + str(ticks)
-                    #print(light_info)
-                    if self.conti == True:
-                        if ticks - self.prev_light >= self.freq_light:
-                            light_dict['time'] = ticks
-                            self.inform_client.publish("device/connect/sensor/light", payload=json.dumps(light_dict), qos=0)
-                            self.prev_light = ticks
-                    elif self.conti == False:
-                        if json.dumps(light_dict) != self.light_comp:
-                            self.light_comp = json.dumps(light_dict)
-                            light_dict['time'] = ticks
-                            self.inform_client.publish("device/connect/sensor/light", payload=json.dumps(light_dict), qos=0)
+                    elif 'Light' in data:
+                        light_value = data[9:-5]
+                        #value = "0"
+                        ticks = str(int(time.time()))
+                        light_dict = dict()
+                        light_dict['uuid'] = self.device_info['uuid']
+                        light_dict['light'] = light_value
+                        # light_info = uuid + "," + value
+                        # light_send = uuid + "," + value + "," + str(ticks)
+                        #print(light_info)
+                        if self.conti == True:
+                            if ticks - self.prev_light >= self.freq_light:
+                                light_dict['time'] = ticks
+                                self.inform_client.publish("device/connect/sensor/light", payload=json.dumps(light_dict), qos=0)
+                                self.prev_light = ticks
+                        elif self.conti == False:
+                            if json.dumps(light_dict) != self.light_comp:
+                                self.light_comp = json.dumps(light_dict)
+                                light_dict['time'] = ticks
+                                self.inform_client.publish("device/connect/sensor/light", payload=json.dumps(light_dict), qos=0)
 
     def receive_server(self):
         while True:
