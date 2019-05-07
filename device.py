@@ -98,14 +98,14 @@ class Device(object):
         self.response_client = mqtt.Client()
         self.response_client.on_connect = self.on_connect
         self.response_client.on_publish = self.on_publish
-        self.inform_client.on_disconnect = self.on_disconnect
+        self.response_client.on_disconnect = self.on_disconnect
         self.response_client.connect(BROKER_IP, PORT, LAG_TIME)
 
         #Note:receive command from broker
         self.receive_client = mqtt.Client()
         self.receive_client.on_connect = self.on_connect
         self.receive_client.on_message = self.on_message
-        self.inform_client.on_disconnect = self.on_disconnect
+        self.receive_client.on_disconnect = self.on_disconnect
         self.receive_client.connect(BROKER_IP, PORT, LAG_TIME)
         self.receive_client.subscribe(TOPIC+'/#')
 
