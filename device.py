@@ -190,13 +190,13 @@ class Device(object):
                 print("System closing...")
                 sys.exit(0)
 
-    def on_connect(client, userdata, flags, rc):
+    def on_connect(self, client, userdata, flags, rc):
         print("Connected with result code " + str(rc))
 
-    def on_publish(client, userdata, mid):
+    def on_publish(self, client, userdata, mid):
         print("A new message is published!")
 
-    def on_disconnect(client, userdata, rc):
+    def on_disconnect(self, client, userdata, rc):
         if rc != 0:
             print("disconnect")
 
