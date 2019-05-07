@@ -147,7 +147,7 @@ class Device(object):
                         ticks = str(int(time.time()))
                         humidtemp_dict = dict()
                         humidtemp_dict['uuid'] = self.device_info['uuid']
-                        humidtemp_dict['humid'] = humid_value
+                        humidtemp_dict['humidity'] = humid_value
                         humidtemp_dict['temperature'] = temp_value
                         # DHT_info = uuid + "," + humid_value + "," + temp_value
                         # DHT_send = uuid + "," + humid_value + "," + temp_value + "," + str(ticks)                     
