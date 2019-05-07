@@ -1,6 +1,7 @@
 import os, sys, time, platform, socket
 import serial
 import threading
+import requests
 import paho.mqtt.client as mqtt
 from urllib.request import urlopen
 
@@ -42,8 +43,8 @@ def get_private_ip(os_name):
     return ip
 
 def get_public_ip():
-    ip = urlopen('http://ip.42.pl/raw').read()
-    return ip.decode('utf-8')
+    ip = requests.get('https://api.ipify.org').text
+    return str(ip)
 
 def get_hostname():
     myname = socket.getfqdn(socket.gethostname())
