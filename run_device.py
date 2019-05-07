@@ -1,6 +1,6 @@
 import sys
 import time
-from client import Device
+from device import Device
 
 device = Device()
 while True:
