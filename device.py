@@ -211,49 +211,41 @@ class Device(object):
         print(message['message'])
         uuid = self.device_info['uuid']
         device_info_json = json.dumps(self.device_info)
-        if topic == "server/search/info":
+        if topic == "server/search/device":
             if message['message'] == "Search Device":
                 self.response_client.publish("device/search/info", payload=device_info_json, qos=0)
-        elif topic == "server/allow/info":
+        elif topic == "server/allow/device":
             if message['message'] == "Allow Device" and message['uuid'] == uuid:
                 self.response_client.publish("device/connect/info", payload=device_info_json, qos=0)
                 self.is_connect = True
-        elif topic == "server/add/info":
+        elif topic == "server/add/device":
             if message['message'] == "Add Device" and message['uuid'] == uuid:
                 self.response_client.publish("device/connect/info", payload=device_info_json, qos=0)
                 self.is_connect = True
-        elif topic == "server/delete/info":
+        elif topic == "server/delete/device":
             if message['message'] == "Delete Device" and message['uuid'] == uuid:
                 print("Disconnecting...")
                 self.response_client.publish("device/disconnect/uuid", payload=device_info_json, qos=0)
                 self.is_connect = False
                 client_exit = True
-        elif topic == "server/update/config":
+        elif topic == "server/update/device":
             script_text = message['script_text']
             filename = "script_text.sh"
             with open(filename, 'w') as outfile:
                 outfile.write(script_text)
             outfile.close()
             os.system("./{}".format(filename))
-        elif topic == "server/update/info":
-            if message['message'] == "Update Device" and message['uuid'] == uuid:
-                # update()
-                self.response_client.publish("device/update/info", payload=device_info_json, qos=0)
-        elif topic == "server/reset/info":
+        elif topic == "server/reset/device":
             if message['message'] == "Reset Device" and message['uuid'] == uuid:
                 self.init_config()
                 self.response_client.publish("device/reset/info", payload=device_info_json, qos=0)
-        elif topic == "server/config/style":
-            if message['message'] == "Device style" and message['uuid'] == uuid:
-                #TODO: check command type
-                if message['conti'] == "True":
-                    self.conti = True
-                elif message['conti'] == "False":
-                    self.conti = False
-                self.response_client.publish("device/config/style", payload=device_info_json, qos=0)
-        elif topic == "server/config/freq":
-            if message['message'] == "Device freq" and message['uuid'] == uuid:
-                #TODO: check command type
-                self.freq_DHT = int(message['freq_DHT'])
-                self.freq_light = int(message['freq_light'])
-                self.response_client.publish("device/config/style", payload=device_info_json, qos=0)
+        elif topic == "server/set/device":
+            for key in message.keys():
+                print(key, message[key], type(message[key]))
+            # if message['message'] == "Set Device" and message['uuid'] == uuid:
+            #     #TODO: check command type
+            #     if message['conti'] == "True":
+            #         self.conti = True
+            #     elif message['conti'] == "False":
+            #         self.conti = False
+            #     self.response_client.publish("device/config/style", payload=device_info_json, qos=0)
