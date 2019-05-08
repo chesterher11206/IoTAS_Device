@@ -1,6 +1,7 @@
 import os, sys, time, platform, socket
 import json
 import serial
+import serial.tools.list_ports
 import threading
 import requests
 import paho.mqtt.client as mqtt
@@ -88,6 +89,9 @@ class Device(object):
         self.device_info['private_ip'] = get_private_ip(os_name)
         self.device_info['public_ip'] = get_public_ip()
         self.device_info['host'] = get_hostname()
+        self.device_info['conti'] = self.conti
+        self.device_info['freq_dht'] = self.freq_DHT
+        self.device_info['freq_light'] = self.freq_light
 
     def set_mqtt(self):
         BROKER_IP = "140.112.18.2"
@@ -118,7 +122,11 @@ class Device(object):
         self.inform_client.connect(BROKER_IP, PORT, LAG_TIME)
 
     def set_sensor(self):
-        self.ser = serial.Serial('/dev/ttyACM0', 9600)
+        comports_list = [p.device for p in serial.tools.list_ports.comports() if p.description != 'n/a']
+        comport = ""
+        if comports_list:
+            comport = comports_list[0]
+        self.ser = serial.Serial(comport, 9600)
         while True:
             sen_raw = self.ser.readline()
             sen = str(sen_raw)
@@ -144,7 +152,7 @@ class Device(object):
                         #print(data_split)
                         humid_value = data_split[0][12:]
                         temp_value = data_split[1][13:-5]
-                        ticks = str(int(time.time()))
+                        ticks = int(time.time())
                         humidtemp_dict = dict()
                         humidtemp_dict['uuid'] = self.device_info['uuid']
                         humidtemp_dict['humidity'] = humid_value
@@ -160,13 +168,13 @@ class Device(object):
                         elif self.conti == False:
                             if json.dumps(humidtemp_dict) != self.dht_comp:
                                 self.dht_comp = json.dumps(humidtemp_dict)
-                                humidtemp_dict['time'] = ticks
+                                humidtemp_dict['time'] = str(ticks)
                                 self.inform_client.publish("device/connect/sensor/DHT", payload=json.dumps(humidtemp_dict), qos=0)
 
                     elif 'Light' in data:
                         light_value = data[9:-5]
                         #value = "0"
-                        ticks = str(int(time.time()))
+                        ticks = int(time.time())
                         light_dict = dict()
                         light_dict['uuid'] = self.device_info['uuid']
                         light_dict['light'] = light_value
@@ -181,7 +189,7 @@ class Device(object):
                         elif self.conti == False:
                             if json.dumps(light_dict) != self.light_comp:
                                 self.light_comp = json.dumps(light_dict)
-                                light_dict['time'] = ticks
+                                light_dict['time'] = str(ticks)
                                 self.inform_client.publish("device/connect/sensor/light", payload=json.dumps(light_dict), qos=0)
 
     def receive_server(self):
@@ -240,12 +248,13 @@ class Device(object):
                 self.init_config()
                 self.response_client.publish("device/reset/info", payload=device_info_json, qos=0)
         elif topic == "server/set/device":
-            for key in message.keys():
-                print(key, message[key], type(message[key]))
-            # if message['message'] == "Set Device" and message['uuid'] == uuid:
-            #     #TODO: check command type
-            #     if message['conti'] == "True":
-            #         self.conti = True
-            #     elif message['conti'] == "False":
-            #         self.conti = False
-            #     self.response_client.publish("device/config/style", payload=device_info_json, qos=0)
+            if message['message'] == "Set Device" and message['uuid'] == uuid:
+                #TODO: check command type
+                self.conti = message['conti']
+                self.freq_DHT = float(message['freq_dht'])
+                self.freq_light = float(message['freq_light'])
+                self.device_info['conti'] = self.conti
+                self.device_info['freq_dht'] = self.freq_DHT
+                self.device_info['freq_light'] = self.freq_light
+                device_info_json = json.dumps(self.device_info)
+                self.response_client.publish("device/set/success", payload=device_info_json, qos=0)
