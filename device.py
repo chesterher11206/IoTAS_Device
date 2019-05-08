@@ -2,10 +2,9 @@ import os, sys, time, platform, socket
 import json
 import serial
 import serial.tools.list_ports
-import threading
+import threading, _thread
 import requests
 import paho.mqtt.client as mqtt
-from urllib.request import urlopen
 
 
 def get_uuid(os_name):
@@ -66,6 +65,7 @@ class Device(object):
         receive_thread = threading.Thread(target=self.receive_server)
         receive_thread.daemon = True
         receive_thread.start()
+        print("Device Init")
 
     def init_status(self):
         self.is_connect = False
@@ -76,10 +76,22 @@ class Device(object):
         self.light_comp = ""
 
     def init_config(self):
-        self.freq_DHT = 2
-        self.freq_light = 2
-        self.conti = False
-        self.sensor_on = []
+        filename = "/device_config.txt"
+        foldername = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+        filepath = foldername + filename
+
+        init_device_info = dict()
+        if os.path.isfile(filepath):
+            with open(filepath) as infile:
+                init_device_info = json.load(infile)
+            infile.close()
+            self.freq_DHT = init_device_info['freq_dht']
+            self.freq_light = init_device_info['freq_light']
+            self.conti = init_device_info['conti']
+        else:
+            self.freq_DHT = 2
+            self.freq_light = 2
+            self.conti = True
 
     def set_device_info(self):
         self.device_info = dict()
@@ -140,7 +152,7 @@ class Device(object):
 
         while True:
             while self.ser.in_waiting:
-                if not self.status and not self.is_connect:
+                if not self.status or not self.is_connect:
                     continue
                 data = str(self.ser.readline())
                 # print("data ", data)
@@ -194,11 +206,19 @@ class Device(object):
 
     def receive_server(self):
         while True:
-            try:
-                self.receive_client.loop_start()
-            except:
-                print("System closing...")
-                sys.exit(0)
+            self.receive_client.loop_start()
+
+    def update_config(self):
+        self.set_device_info()
+        filename = "/device_config.txt"
+        foldername = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+        filepath = foldername + filename
+        with open(filepath, 'w+') as outfile:
+            json.dump(self.device_info, outfile)
+        outfile.close()
+    
+    def upgrade_thread(self, filepath):
+        os.system("sh {}".format(filepath))
 
     def on_connect(self, client, userdata, flags, rc):
         print("Connected with result code " + str(rc))
@@ -226,23 +246,24 @@ class Device(object):
             if message['message'] == "Allow Device" and message['uuid'] == uuid:
                 self.response_client.publish("device/connect/info", payload=device_info_json, qos=0)
                 self.is_connect = True
-        elif topic == "server/add/device":
-            if message['message'] == "Add Device" and message['uuid'] == uuid:
-                self.response_client.publish("device/connect/info", payload=device_info_json, qos=0)
-                self.is_connect = True
         elif topic == "server/delete/device":
             if message['message'] == "Delete Device" and message['uuid'] == uuid:
                 print("Disconnecting...")
                 self.response_client.publish("device/disconnect/uuid", payload=device_info_json, qos=0)
                 self.is_connect = False
-                client_exit = True
-        elif topic == "server/update/device":
-            script_text = message['script_text']
-            filename = "script_text.sh"
-            with open(filename, 'w') as outfile:
-                outfile.write(script_text)
-            outfile.close()
-            os.system("./{}".format(filename))
+        elif topic == "server/upgrade/device":
+            if message['message'] == "Upgrade Device" and message['uuid'] == uuid:
+                script_text = message['script_text']
+                filename = "/script_text.sh"
+                foldername = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+                filepath = foldername + filename
+                with open(filepath, 'w') as outfile:
+                    outfile.write(script_text)
+                outfile.close()
+                upgrade_thread = threading.Thread(target=self.upgrade_device, args=(filepath,))
+                upgrade_thread.start()
+                self.is_connect = False
+                _thread.interrupt_main()
         elif topic == "server/reset/device":
             if message['message'] == "Reset Device" and message['uuid'] == uuid:
                 self.init_config()
@@ -253,8 +274,9 @@ class Device(object):
                 self.conti = message['conti']
                 self.freq_DHT = float(message['freq_dht'])
                 self.freq_light = float(message['freq_light'])
-                self.device_info['conti'] = self.conti
-                self.device_info['freq_dht'] = self.freq_DHT
-                self.device_info['freq_light'] = self.freq_light
+                self.update_config()
                 device_info_json = json.dumps(self.device_info)
                 self.response_client.publish("device/set/success", payload=device_info_json, qos=0)
+        elif topic == "server/disconnect":
+            if message['message'] == "Server Disconnect":
+                self.is_connect = False
