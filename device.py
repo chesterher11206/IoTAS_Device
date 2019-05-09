@@ -65,11 +65,16 @@ class Device(object):
         receive_thread = threading.Thread(target=self.receive_server)
         receive_thread.daemon = True
         receive_thread.start()
+        check_thread = threading.Thread(target=self.check_upgrade)
+        check_thread.daemon = True
+        check_thread.start()
         print("Device Init")
 
     def init_status(self):
         self.is_connect = False
         self.status = False
+        self.upgrading = False
+        self.scriptpath = ""
         self.prev_DHT = int(time.time())
         self.prev_light = int(time.time())
         self.dht_comp = ""
@@ -217,8 +222,15 @@ class Device(object):
             json.dump(self.device_info, outfile)
         outfile.close()
     
-    def upgrade_thread(self, filepath):
-        os.system("sh {}".format(filepath))
+    def check_upgrade(self):
+        while not self.upgrading or not self.scriptpath:
+            time.sleep(1)
+        upgrade_thread = threading.Thread(target=self.upgrade_device)
+        upgrade_thread.start()
+
+    def upgrade_device(self):
+        os.system("sh {}".format(self.scriptpath))
+        _thread.interrupt_main()
 
     def on_connect(self, client, userdata, flags, rc):
         print("Connected with result code " + str(rc))
@@ -252,7 +264,8 @@ class Device(object):
                 self.response_client.publish("device/disconnect/uuid", payload=device_info_json, qos=0)
                 self.is_connect = False
         elif topic == "server/upgrade/device":
-            if message['message'] == "Upgrade Device" and message['uuid'] == uuid:
+            if message['message'] == "Upgrade Device" and message['uuid'] == uuid and not self.upgrading:
+                self.upgrading = True
                 script_text = message['script_text']
                 filename = "/script_text.sh"
                 foldername = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
@@ -260,10 +273,8 @@ class Device(object):
                 with open(filepath, 'w') as outfile:
                     outfile.write(script_text)
                 outfile.close()
-                upgrade_thread = threading.Thread(target=self.upgrade_device, args=(filepath,))
-                upgrade_thread.start()
-                self.is_connect = False
-                _thread.interrupt_main()
+                self.scriptpath = filepath
+                
         elif topic == "server/reset/device":
             if message['message'] == "Reset Device" and message['uuid'] == uuid:
                 self.init_config()
