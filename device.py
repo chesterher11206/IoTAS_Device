@@ -28,8 +28,8 @@ def get_uuid(os_name):
         uuid_f = uuid
         if len(uuid_f) == 36:
             break
-    if partuuid_list:
-        uuid_f = uuid_f + ":" + partuuid_list[0]
+    # if partuuid_list:
+    #     uuid_f = uuid_f + ":" + partuuid_list[0]
     return uuid_f
 
 def get_private_ip(os_name):
