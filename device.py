@@ -75,7 +75,7 @@ class Device(object):
         self.status = False
         self.upgrading = False
         self.scriptpath = ""
-        self.version = "1.1"
+        self.version = "1.2"
         self.prev_DHT = int(time.time())
         self.prev_light = int(time.time())
         self.dht_comp = ""
@@ -262,6 +262,7 @@ class Device(object):
                 self.response_client.publish("device/search/info", payload=device_info_json, qos=0)
         elif topic == "server/allow/device":
             if message['message'] == "Allow Device" and message['uuid'] == uuid:
+                print(device_info_json)
                 self.response_client.publish("device/connect/info", payload=device_info_json, qos=0)
                 self.is_connect = True
         elif topic == "server/delete/device":
