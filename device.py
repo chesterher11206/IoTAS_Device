@@ -75,7 +75,7 @@ class Device(object):
         self.status = False
         self.upgrading = False
         self.scriptpath = ""
-        self.version = "1.5"
+        self.version = "1.6"
         self.prev_DHT = int(time.time())
         self.prev_light = int(time.time())
         self.dht_comp = ""
