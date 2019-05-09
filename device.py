@@ -29,7 +29,7 @@ def get_uuid(os_name):
         if len(uuid_f) == 36:
             break
     if partuuid_list:
-        uuid_f = uuid_f + "_" + partuuid_list[0]
+        uuid_f = uuid_f + ":" + partuuid_list[0]
     return uuid_f
 
 def get_private_ip(os_name):
@@ -75,6 +75,7 @@ class Device(object):
         self.status = False
         self.upgrading = False
         self.scriptpath = ""
+        self.version = "1.0"
         self.prev_DHT = int(time.time())
         self.prev_light = int(time.time())
         self.dht_comp = ""
@@ -109,6 +110,7 @@ class Device(object):
         self.device_info['conti'] = self.conti
         self.device_info['freq_dht'] = self.freq_DHT
         self.device_info['freq_light'] = self.freq_light
+        self.device_info['version'] = self.version
 
     def set_mqtt(self):
         BROKER_IP = "140.112.18.2"
@@ -143,24 +145,27 @@ class Device(object):
         comport = ""
         if comports_list:
             comport = comports_list[0]
-        self.ser = serial.Serial(comport, 9600)
-        while True:
+        try:
+            self.ser = serial.Serial(comport, 9600)
+            self.status = True
+        except:
+            self.status = False
+            _thread.interrupt_main()
+
+        while self.status:
             sen_raw = self.ser.readline()
             sen = str(sen_raw)
-            #print(sen)
             if 'Sensor' in sen:
                 sensor_name = sen[10:-5]
                 print(sensor_name)
-                self.status = True
+                self.sensor_list = sensor_name.split("+")
                 break
-        self.sensor_list = sensor_name.split("+")
 
-        while True:
+        while self.status:
             while self.ser.in_waiting:
                 if not self.status or not self.is_connect:
                     continue
                 data = str(self.ser.readline())
-                # print("data ", data)
                 if 'x' in data:
                     break
                 else:                
@@ -188,7 +193,7 @@ class Device(object):
                                 humidtemp_dict['time'] = str(ticks)
                                 self.inform_client.publish("device/connect/sensor/DHT", payload=json.dumps(humidtemp_dict), qos=0)
 
-                    elif 'Light' in data:
+                    elif 'Light:' in data:
                         light_value = data[9:-5]
                         #value = "0"
                         ticks = int(time.time())
@@ -230,6 +235,7 @@ class Device(object):
 
     def upgrade_device(self):
         os.system("sh {}".format(self.scriptpath))
+        self.ser.close()
         _thread.interrupt_main()
 
     def on_connect(self, client, userdata, flags, rc):
