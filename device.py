@@ -28,8 +28,8 @@ def get_uuid(os_name):
         uuid_f = uuid
         if len(uuid_f) == 36:
             break
-    # if partuuid_list:
-    #     uuid_f = uuid_f + ":" + partuuid_list[0]
+    if partuuid_list:
+        uuid_f = uuid_f + ":" + partuuid_list[0]
     return uuid_f
 
 def get_private_ip(os_name):
@@ -75,7 +75,7 @@ class Device(object):
         self.status = False
         self.upgrading = False
         self.scriptpath = ""
-        self.version = "1.3"
+        self.version = "1.4"
         self.prev_DHT = int(time.time())
         self.prev_light = int(time.time())
         self.dht_comp = ""
