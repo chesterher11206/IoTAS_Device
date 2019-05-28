@@ -8,7 +8,7 @@ import math
 #PartA: variable definition
 
 #insert "iwconfig" on terminal and determine this variable
-interface = 'wlp2s0'
+interface = 'wlan0'
 
 #define BS
 BS_database = []
