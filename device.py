@@ -2,7 +2,7 @@ import os, sys, time, platform, socket, copy
 import json
 import serial
 import serial.tools.list_ports
-import threading, _thread
+from thread import *
 import requests
 import paho.mqtt.client as mqtt
 from rssi import predict_rssi
