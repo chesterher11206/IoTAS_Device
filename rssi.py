@@ -269,7 +269,8 @@ def predict_rssi():
 		
 		cnt = 0
 		for ma in Basis:
-			res[cnt].append(ma[3])
+			# res[cnt].append(ma[3])
+			res[cnt].append(rssiRange(ma[3], param_dict[cnt]))
 			cnt = cnt +1 
 
 	for j in range(4):
@@ -281,16 +282,21 @@ def predict_rssi():
 	avg_dict["C"] = np.mean(resC)
 	avg_dict["D"] = np.mean(resD)
 
-	param_dict = dict()
-	param_dict["A"] = [3.545827314497159, 13.572437101042274]
-	param_dict["B"] = [4.797439749650712, -2.124505707134275]
-	param_dict["C"] = [3.650652704274152, 13.900603951359294]
-	param_dict["D"] = [4.3653975991397305, 6.769991921615146]
+	param_dict = []
+	param_dict.append([3.545827314497159, 13.572437101042274])
+	param_dict.append([4.797439749650712, -2.124505707134275])
+	param_dict.append([3.650652704274152, 13.900603951359294])
+	param_dict.append([4.3653975991397305, 6.769991921615146])
 
-	testA = [0.61, 7.04, 2.9, rssiRange(avg_dict["A"], param_dict["A"])]
-	testB = [13.29, 1.05, 2.9, rssiRange(avg_dict["B"], param_dict["B"])]
-	testC = [0.82, -0.15, 0, rssiRange(avg_dict["C"], param_dict["C"])]
-	testD = [14.24, 7.78, 0, rssiRange(avg_dict["D"], param_dict["D"])]
+	# testA = [0.61, 7.04, 2.9, rssiRange(avg_dict["A"], param_dict[0])]
+	# testB = [13.29, 1.05, 2.9, rssiRange(avg_dict["B"], param_dict[1])]
+	# testC = [0.82, -0.15, 0, rssiRange(avg_dict["C"], param_dict[2])]
+	# testD = [14.24, 7.78, 0, rssiRange(avg_dict["D"], param_dict[3])]
+
+	testA = [0.61, 7.04, 2.9, avg_dict["A"]]
+	testB = [13.29, 1.05, 2.9, avg_dict["B"]]
+	testC = [0.82, -0.15, 0, avg_dict["C"]]
+	testD = [14.24, 7.78, 0, avg_dict["D"]]
 
 	meas = []
 	meas.append(testA)
