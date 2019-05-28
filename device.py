@@ -3,6 +3,7 @@ import json
 import serial
 import serial.tools.list_ports
 from thread import *
+import threading
 import requests
 import paho.mqtt.client as mqtt
 from rssi import predict_rssi
