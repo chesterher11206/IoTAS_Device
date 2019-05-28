@@ -288,9 +288,9 @@ def predict_rssi():
 	param_dict["D"] = [4.3653975991397305, 6.769991921615146]
 
 	testA = [0.61, 7.04, 2.9, rssiRange(avg_dict["A"], param_dict["A"])]
-	testB = [13.29, 1.05, 2.9, rssiRange(avg_dict["B"], param_dict["A"])]
-	testC = [0.82, -0.15, 0, rssiRange(avg_dict["C"], param_dict["A"])]
-	testD = [14.24, 7.78, 0, rssiRange(avg_dict["D"], param_dict["A"])]
+	testB = [13.29, 1.05, 2.9, rssiRange(avg_dict["B"], param_dict["B"])]
+	testC = [0.82, -0.15, 0, rssiRange(avg_dict["C"], param_dict["C"])]
+	testD = [14.24, 7.78, 0, rssiRange(avg_dict["D"], param_dict["D"])]
 
 	meas = []
 	meas.append(testA)
