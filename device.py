@@ -302,9 +302,9 @@ class Device(object):
                 locate_device_info = copy.deepcopy(self.device_info)
                 location_set = predict_rssi()
                 print(location_set)
-                locate_device_info["locationX"] = location_set[0]
-                locate_device_info["locationY"] = location_set[1]
-                locate_device_info["locationZ"] = location_set[2]
+                locate_device_info["locationX"] = round(location_set[0], 10)
+                locate_device_info["locationY"] = round(location_set[1], 10)
+                locate_device_info["locationZ"] = round(location_set[2], 10)
                 locate_device_info["time"] = str(int(time.time()))
                 locate_device_info_json = json.dumps(locate_device_info)
                 self.response_client.publish("device/locate/info", payload=locate_device_info_json, qos=0)
