@@ -282,6 +282,9 @@ def predict_rssi():
 	avg_dict["C"] = np.mean(resC)
 	avg_dict["D"] = np.mean(resD)
 
+	for key in avg_dict.keys():
+		print(key, avg_dict[key])
+
 	param_dict = []
 	param_dict.append([3.545827314497159, 13.572437101042274])
 	param_dict.append([4.797439749650712, -2.124505707134275])
