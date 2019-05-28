@@ -269,7 +269,7 @@ def predict_rssi():
 		
 		cnt = 0
 		for ma in Basis:
-			res[cnt].append(ma[4])
+			res[cnt].append(ma[3])
 			cnt = cnt +1 
 
 	for j in range(4):
