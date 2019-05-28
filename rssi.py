@@ -263,7 +263,7 @@ def predict_rssi():
 	param_list.append([3.650652704274152, 13.900603951359294])
 	param_list.append([4.3653975991397305, 6.769991921615146])
 
-	for i in range(8):
+	for i in range(6):
 		print(i)
 		Basis = []
 		rssi_scanner = RSSI_Scan(interface)
