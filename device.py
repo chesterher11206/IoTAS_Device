@@ -303,7 +303,7 @@ class Device(object):
                 locate_device_info["locationZ"] = location_set[2]
                 locate_device_info["time"] = str(int(time.time()))
                 locate_device_info_json = json.dumps(locate_device_info)
-                self.response_client.publish("device/locate/info", payload=locate_device_info_json qos=0)
+                self.response_client.publish("device/locate/info", payload=locate_device_info_json, qos=0)
         elif topic == "server/disconnect":
             if message['message'] == "Server Disconnect":
                 self.is_connect = False
