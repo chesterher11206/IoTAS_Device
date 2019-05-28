@@ -137,7 +137,7 @@ def power(index):
 	return index['signal']
 
 def num(index):
-	return index[7]
+	return index[6]
 
 def rssiRange(rssi, param):
 	#d=10^((ABS(RSSI)-A)/(10*n))
