@@ -2,7 +2,10 @@ import os, sys, time, platform, socket, copy
 import json
 import serial
 import serial.tools.list_ports
-from thread import *
+try:
+    from thread import *
+except Exception:
+    import _thread
 import threading
 import requests
 import paho.mqtt.client as mqtt
@@ -295,7 +298,7 @@ class Device(object):
                 device_info_json = json.dumps(self.device_info)
                 self.response_client.publish("device/set/success", payload=device_info_json, qos=0)
         elif topic == "server/locate/device":
-            if message['message'] == "Locate Device" and message['uuid'] == uuid:
+            if message['message'] == "Locate Device":
                 locate_device_info = copy.deepcopy(self.device_info)
                 location_set = predict_rssi()
                 print(location_set)
