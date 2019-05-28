@@ -1,10 +1,11 @@
-import os, sys, time, platform, socket
+import os, sys, time, platform, socket, copy
 import json
 import serial
 import serial.tools.list_ports
 import threading, _thread
 import requests
 import paho.mqtt.client as mqtt
+from rssi import predict_rssi
 
 
 def get_uuid(os_name):
@@ -192,7 +193,6 @@ class Device(object):
                                 self.dht_comp = json.dumps(humidtemp_dict)
                                 humidtemp_dict['time'] = str(ticks)
                                 self.inform_client.publish("device/connect/sensor/DHT", payload=json.dumps(humidtemp_dict), qos=0)
-
                     elif 'Light:' in data:
                         light_value = data[9:-5]
                         #value = "0"
@@ -205,7 +205,7 @@ class Device(object):
                         #print(light_info)
                         if self.conti == True:
                             if ticks - self.prev_light >= self.freq_light:
-                                light_dict['time'] = ticks
+                                light_dict['time'] = str(ticks)
                                 self.inform_client.publish("device/connect/sensor/light", payload=json.dumps(light_dict), qos=0)
                                 self.prev_light = ticks
                         elif self.conti == False:
@@ -281,20 +281,29 @@ class Device(object):
                     outfile.write(script_text)
                 outfile.close()
                 self.scriptpath = filepath
-                
         elif topic == "server/reset/device":
             if message['message'] == "Reset Device" and message['uuid'] == uuid:
                 self.init_config()
                 self.response_client.publish("device/reset/info", payload=device_info_json, qos=0)
         elif topic == "server/set/device":
             if message['message'] == "Set Device" and message['uuid'] == uuid:
-                #TODO: check command type
                 self.conti = message['conti']
                 self.freq_DHT = float(message['freq_dht'])
                 self.freq_light = float(message['freq_light'])
                 self.update_config()
                 device_info_json = json.dumps(self.device_info)
                 self.response_client.publish("device/set/success", payload=device_info_json, qos=0)
+        elif topic == "server/locate/device":
+            if message['message'] == "Locate Device" and message['uuid'] == uuid:
+                locate_device_info = copy.deepcopy(self.device_info)
+                location_set = predict_rssi()
+                print(location_set)
+                locate_device_info["locationX"] = location_set[0]
+                locate_device_info["locationY"] = location_set[1]
+                locate_device_info["locationZ"] = location_set[2]
+                locate_device_info["time"] = str(int(time.time()))
+                locate_device_info_json = json.dumps(locate_device_info)
+                self.response_client.publish("device/locate/info", payload=locate_device_info_json qos=0)
         elif topic == "server/disconnect":
             if message['message'] == "Server Disconnect":
                 self.is_connect = False
