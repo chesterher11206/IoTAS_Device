@@ -156,7 +156,6 @@ def matching(ap_info, BS_database, Basis):
 				data.append(cmp_bs['locx'])
 				data.append(cmp_bs['locy'])
 				data.append(cmp_bs['locz'])
-				data.append(rssiRange(cell['signal']))
 				data.append(cell['signal'])
 				data.append(cell['ssid'])
 				data.append(cell['address'])
@@ -218,7 +217,7 @@ def get_rssi(rssi_db, distance_dict):
 		
 		cnt = 0
 		for ma in Basis:
-			res[cnt].append(ma[4])
+			res[cnt].append(ma[3])
 			cnt = cnt +1 
 
 	for j in range(4):
