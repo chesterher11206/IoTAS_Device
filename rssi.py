@@ -249,10 +249,10 @@ def predict_rssi():
 	res.append(resD)
 
 	param_list = []
-	param_list.append([4.985015563624035, 0.0867762420790279])
-	param_list.append([5.4443400835804825, -9.038421261729004])
-	param_list.append([3.472783991935129, 15.77310597836463])
-	param_list.append([4.46802397139918, 4.184202907897281])
+	param_list.append([6.17651989505506, -10.980833895238225])
+	param_list.append([6.050075300423728, -13.777222841930119])
+	param_list.append([3.624689527748884, 14.081706101821961])
+	param_list.append([4.522151333850268, 3.5916879722896433])
 
 	for i in range(10):
 		print(i)
