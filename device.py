@@ -301,9 +301,9 @@ class Device(object):
             if message['message'] == "Locate Device":
                 locate_device_info = copy.deepcopy(self.device_info)
                 location_set = predict_rssi()
-                while location_set[2] < 1:
+                while location_set[2] < 0:
                     location_set[2] = location_set[2] + 1
-                while location_set[2] > 2:
+                while location_set[2] > 1:
                     location_set[2] = location_set[2] - 1
                 if location_set[2] > 1.5:
                     location_set[2] = location_set - 0.5
