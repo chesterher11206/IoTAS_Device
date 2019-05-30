@@ -305,6 +305,8 @@ class Device(object):
                     location_set[2] = location_set[2] + 1
                 while location_set[2] > 2:
                     location_set[2] = location_set[2] - 1
+                if location_set[2] > 1.5:
+                    location_set[2] = location_set - 0.5
                 print(location_set)
                 locate_device_info["locationX"] = round(location_set[0], 10)
                 locate_device_info["locationY"] = round(location_set[1], 10)
