@@ -303,7 +303,7 @@ class Device(object):
                 location_set = predict_rssi()
                 while location_set[2] < 0:
                     location_set[2] = location_set[2] + 1
-                while location_set[2] > 2:
+                while location_set[2] > 2.9:
                     location_set[2] = location_set[2] - 1
                 if location_set[2] > 1.5:
                     location_set[2] = location_set - 0.5
