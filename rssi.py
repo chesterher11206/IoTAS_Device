@@ -21,15 +21,6 @@ BS_database.append(BS_data3)
 BS_data4 = {'ssid':'MD402-1', 'f2.4':'8C:3B:AD:21:FF:66', 'f5':'8C:3B:AD:21:FF:68', 'locx':14.24, 'locy':7.78, 'locz':0, 'uuid':4}
 BS_database.append(BS_data4)
 
-DB_NAME = '/rssi_db.json'
-FILEPATH = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = FILEPATH + DB_NAME
-rssi_db = dict()
-if os.path.isfile(DB_PATH):
-    with open(DB_PATH) as infile:
-        rssi_db = json.load(infile)
-    infile.close()
-
 #PartB: RSSI value catching
 class RSSI_Scan(object):
     # Allows us to declare a network interface externally.
@@ -258,10 +249,10 @@ def predict_rssi():
 	res.append(resD)
 
 	param_list = []
-	param_list.append([3.545827314497159, 13.572437101042274])
-	param_list.append([4.797439749650712, -2.124505707134275])
-	param_list.append([3.650652704274152, 13.900603951359294])
-	param_list.append([4.3653975991397305, 6.769991921615146])
+	param_list.append([4.985015563624035, 0.0867762420790279])
+	param_list.append([5.4443400835804825, -9.038421261729004])
+	param_list.append([3.472783991935129, 15.77310597836463])
+	param_list.append([4.46802397139918, 4.184202907897281])
 
 	for i in range(10):
 		print(i)
@@ -314,6 +305,15 @@ def predict_rssi():
 # yy = 3.0
 # zz = 0.8
 # distance_dict = check(xx, yy, zz)
+
+# DB_NAME = '/rssi_db.json'
+# FILEPATH = os.path.dirname(os.path.abspath(__file__))
+# DB_PATH = FILEPATH + DB_NAME
+# rssi_db = dict()
+# if os.path.isfile(DB_PATH):
+#     with open(DB_PATH) as infile:
+#         rssi_db = json.load(infile)
+#     infile.close()
 
 # for i in range(10):
 # 	rssi_db = get_rssi(rssi_db, distance_dict)
