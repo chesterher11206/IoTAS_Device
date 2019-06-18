@@ -5,6 +5,7 @@ import time
 CONTROL_PIN = 17
 PWM_FREQ = 50
 STEP = 15
+NORTH = 88
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(CONTROL_PIN, GPIO.OUT)
@@ -65,22 +66,21 @@ def angle_to_duty_cycle(angle=0):
     return duty_cycle
 
 def turn_front():
-    dc = angle_to_duty_cycle(90)
+    dc = angle_to_duty_cycle(NORTH)
     pwm.ChangeDutyCycle(dc)
 
 def turn_angle(direction):
-    t = 0
+    t = 1.5
     if direction == "r":
         # turn right
-        angle = 120
-        t = 1.3
+        angle = NORTH + 30
     elif direction == "l":
         # turn right
-        angle = 60
-        t = 1.6
+        angle = NORTH - 30
     elif direction == "o":
         # turn opposite
-        angle = 120
+        angle = NORTH + 30
+        t = 4.5
     else:
         return
 
@@ -98,9 +98,9 @@ def guide(path):
         if isinstance(step, int):
             # go direct
             motor_pwm.ChangeDutyCycle(40)
-            t = step * 2.5 - 0.3
+            t = step * 2.5
             if count > 0:
-                t = t - 0.3
+                t = t - 0.6
             time.sleep(t)
         else:
             # turn
