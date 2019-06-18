@@ -69,13 +69,15 @@ def turn_front():
     pwm.ChangeDutyCycle(dc)
 
 def turn_angle(direction):
-    t = 1.5
+    t = 0
     if direction == "r":
         # turn right
         angle = 120
+        t = 1.3
     elif direction == "l":
         # turn right
         angle = 60
+        t = 1.6
     elif direction == "o":
         # turn opposite
         angle = 120
@@ -96,9 +98,9 @@ def guide(path):
         if isinstance(step, int):
             # go direct
             motor_pwm.ChangeDutyCycle(40)
-            t = step * 2.5 - 0.5
+            t = step * 2.5 - 0.3
             if count > 0:
-                t = t - 0.5
+                t = t - 0.3
             time.sleep(t)
         else:
             # turn
