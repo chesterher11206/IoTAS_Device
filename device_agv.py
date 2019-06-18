@@ -10,7 +10,7 @@ import threading
 import requests
 import paho.mqtt.client as mqtt
 from rssi import predict_rssi
-from device_avg import AVG
+from device_agv import AGV
 
 
 def get_uuid(os_name):
@@ -65,7 +65,7 @@ class Device(object):
         self.init_config()
         self.set_device_info()
         self.set_mqtt()
-        self.set_avg()
+        self.set_agv()
         sensor_thread = threading.Thread(target=self.set_sensor)
         sensor_thread.daemon = True
         sensor_thread.start()
@@ -220,8 +220,8 @@ class Device(object):
                                 light_dict['time'] = str(ticks)
                                 self.inform_client.publish("device/connect/sensor/light", payload=json.dumps(light_dict), qos=0)
 
-    def set_avg(self):
-        self.avg = AVG()
+    def set_agv(self):
+        self.agv = AGV()
 
     def receive_server(self):
         while True:
@@ -324,7 +324,7 @@ class Device(object):
                 print("Guiding...")
                 color = message['color']
                 station = message['station']
-                self.avg.guide(color, station)
+                self.agv.guide(color, station)
         elif topic == "server/disconnect":
             if message['message'] == "Server Disconnect":
                 self.is_connect = False

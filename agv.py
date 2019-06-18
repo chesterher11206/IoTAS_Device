@@ -2,7 +2,7 @@ import time
 import RPi.GPIO as GPIO
 
 
-class AVG(object):
+class AGV(object):
     def __init__(self, *args, **kwargs):
         self.front()
         self.back()
