@@ -69,11 +69,10 @@ def turn_front():
     pwm.ChangeDutyCycle(dc)
 
 def turn_angle(direction):
-    t = 1
+    t = 1.5
     if direction == "r":
         # turn right
         angle = 120
-        t = 0.5
     elif direction == "l":
         # turn right
         angle = 60
