@@ -1,4 +1,5 @@
 import RPi.GPIO as GPIO
+import time
 
 # for front
 CONTROL_PIN = 17
