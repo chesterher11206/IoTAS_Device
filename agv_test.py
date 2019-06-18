@@ -64,37 +64,48 @@ def angle_to_duty_cycle(angle=0):
     duty_cycle = (0.05 * PWM_FREQ) + (0.19 * PWM_FREQ * angle / 180)
     return duty_cycle
 
+def turn_front():
+    dc = angle_to_duty_cycle(90)
+    pwm.ChangeDutyCycle(dc)
+
 def turn_angle(direction):
+    t = 1
     if direction == "r":
         # turn right
         angle = 120
+        t = 0.5
     elif direction == "l":
         # turn right
         angle = 60
     elif direction == "o":
         # turn opposite
-        angle = 60
+        angle = 120
     else:
         return
 
     dc = angle_to_duty_cycle(angle)
     pwm.ChangeDutyCycle(dc)
-    time.sleep(1)
+    time.sleep(t)
 
     # turn back
-    dc = angle_to_duty_cycle(90)
-    pwm.ChangeDutyCycle(dc)
+    turn_front()
 
 def guide(path):
+    turn_front()
+    count = 0
     for step in path:
         if isinstance(step, int):
             # go direct
-            motor_pwm.ChangeDutyCycle(50)
-            t = step * 2 - 0.5
+            motor_pwm.ChangeDutyCycle(40)
+            t = step * 2.5 - 0.5
+            if count > 0:
+                t = t - 0.5
             time.sleep(t)
         else:
             # turn
             turn_angle(step)
+        count = count + 1
+    turn_front()
 
 def main():
     # color = "red"
