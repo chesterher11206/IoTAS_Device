@@ -2,7 +2,7 @@ import sys
 import time
 import json
 import atexit
-from device import Device
+from device_agv import Device
 
 def exit_handler(device):
     print("System closing...")

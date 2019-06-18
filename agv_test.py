@@ -66,22 +66,22 @@ def angle_to_duty_cycle(angle=0):
 def turn_angle(direction):
     if direction == "r":
         # turn right
-        angle = 0
+        angle = 120
     elif direction == "l":
         # turn right
-        angle = 0
+        angle = 60
     elif direction == "o":
         # turn opposite
-        angle = 0
+        angle = 60
     else:
         return
 
     dc = angle_to_duty_cycle(angle)
     pwm.ChangeDutyCycle(dc)
+    time.sleep(1)
 
     # turn back
-    time.sleep(2)
-    dc = angle_to_duty_cycle(0)
+    dc = angle_to_duty_cycle(90)
     pwm.ChangeDutyCycle(dc)
 
 def guide(path):
@@ -89,16 +89,18 @@ def guide(path):
         if isinstance(step, int):
             # go direct
             motor_pwm.ChangeDutyCycle(50)
-            time.sleep(5)
+            t = step * 2 - 0.5
+            time.sleep(t)
         else:
             # turn
             turn_angle(step)
 
 def main():
-    color = "red"
-    station = 4
-    path_dict = get_guide_path()
-    path = path_dict[color][station]
+    # color = "red"
+    # station = 4
+    # path_dict = get_guide_path()
+    # path = path_dict[color][station]
+    path = [1, 'l', 2, 'r', 1]
     guide(path)
 
 
