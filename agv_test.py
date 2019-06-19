@@ -1,5 +1,9 @@
 import RPi.GPIO as GPIO
 import time
+import cv2
+from picamera.array import PiRGBArray
+from picamera import PiCamera
+import matplotlib.pyplot as plt
 
 # for front
 CONTROL_PIN = 17
