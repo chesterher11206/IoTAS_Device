@@ -114,7 +114,7 @@ class AGV(object):
     def wait_for_echo(self, value, timeout):
         count = timeout
         while GPIO.input(self.ECHO_PIN) != value and count > 0:
-            count = count` - 1
+            count = count - 1
 
     def get_distance(self):
         self.send_trigger_pulse()
