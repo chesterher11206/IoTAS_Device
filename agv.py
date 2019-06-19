@@ -2,6 +2,8 @@ import time
 import RPi.GPIO as GPIO
 
 
+GPIO.setwarnings(False)
+
 class AGV(object):
     def __init__(self, *args, **kwargs):
         self.front()
