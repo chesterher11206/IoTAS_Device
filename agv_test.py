@@ -12,6 +12,7 @@ STEP = 15
 NORTH = 90
 
 GPIO.setmode(GPIO.BCM)
+GPIO.setwarnings(False)
 GPIO.setup(CONTROL_PIN, GPIO.OUT)
 
 pwm = GPIO.PWM(CONTROL_PIN, PWM_FREQ)
