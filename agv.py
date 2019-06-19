@@ -8,7 +8,6 @@ class AGV(object):
     def __init__(self, *args, **kwargs):
         self.front()
         self.back()
-        self.ultrasonic()
         self.get_guide_path()
 
     def front(self):
@@ -38,14 +37,6 @@ class AGV(object):
 
         GPIO.output(self.MOTOR_CONTROL_PIN1, False)
         GPIO.output(self.MOTOR_CONTROL_PIN2, True)
-
-    def ultrasonic():
-        self.TRIGGER_PIN = 23
-        self.ECHO_PIN = 24
-
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setup(self.TRIGGER_PIN, GPIO.OUT)
-        GPIO.setup(self.ECHO_PIN, GPIO.IN)
 
     def get_guide_path(self):
         self.path_dict = dict()
@@ -108,28 +99,7 @@ class AGV(object):
                 # turn
                 self.turn_angle(step)
 
-    def send_trigger_pulse(self):
-        GPIO.output(self.TRIGGER_PIN, True)
-        time.sleep(0.001)
-        GPIO.output(self.TRIGGER_PIN, False)
-
-    def wait_for_echo(self, value, timeout):
-        count = timeout
-        while GPIO.input(self.ECHO_PIN) != value and count > 0:
-            count = count - 1
-
-    def get_distance(self):
-        self.send_trigger_pulse()
-        self.wait_for_echo(True, 5000)
-        start = time.time()
-        self.wait_for_echo(False, 5000)
-        finish = time.time()
-        pulse_len = finish - start
-        distance_cm = pulse_len * 340 *100 /2
-        distance_in = distance_cm / 2.5
-        return (distance_cm, distance_in)
-
     def guide(self, color, station):
         path = self.path_dict[color][station]
         print(path)
-        self.start_guide(path)
+        # self.start_guide(path)
