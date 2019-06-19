@@ -129,4 +129,5 @@ class AGV(object):
 
     def guide(self, color, station):
         path = self.path_dict[color][station]
+        print(path)
         self.start_guide(path)

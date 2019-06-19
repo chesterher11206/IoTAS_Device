@@ -6,6 +6,7 @@ import time
 
 
 with PiCamera() as camera:
+    camera.rotation = 180
     camera.resolution = (320, 240)
     time.sleep(1)
 
@@ -32,6 +33,7 @@ with PiCamera() as camera:
                 cv2.line(crop_img, (cx, 0), (cx, 720), (255, 0, 0), 1)
                 cv2.line(crop_img, (0, cy), (1280, cy), (255, 0, 0), 1)
                 cv2.drawContours(crop_img, contours, -1, (0, 255, 0), 1)
+                print(cx, cy)
 
                 if cx >= 120:
                     pass
@@ -40,7 +42,6 @@ with PiCamera() as camera:
                 if cx <= 50:
                     pass
 
-            cv2.waitKey(1)
+            # cv2.waitKey(1)
 
             output.truncate(0)
-            break

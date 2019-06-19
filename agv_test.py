@@ -60,10 +60,65 @@ def get_guide_path():
 
     return path_dict
 
+def get_photo(timeout):
+    with PiCamera() as camera:
+        camera.rotation = 180
+        camera.resolution = (320, 240)
+
+        with PiRGBArray(camera) as output:
+            # camera.capture(output, 'rgb', use_video_port=True)
+            for foo in camera.capture_continuous(output, format="bgr", use_video_port=True):
+                if time.time() <= timeout:
+                    break
+
+                crop_img = output.array
+                gray = cv2.cvtColor(crop_img, cv2.COLOR_BGR2GRAY)
+                plt.imshow(gray, cmap='gray')
+                blur = cv2.GaussianBlur(gray, (5, 5), 0)
+                ret, thresh = cv2.threshold(blur, 60, 255, cv2.THRESH_BINARY_INV)
+
+                image, contours, hierarchy = cv2.findContours(thresh.copy(), 1, cv2.CHAIN_APPROX_NONE)
+
+                if len(contours) > 0:
+                    c = max(contours, key=cv2.contourArea)
+                    M = cv2.moments(c)
+
+                    cx = int(M['m10']/M['m00'])
+                    cy = int(M['m01']/M['m00'])
+
+                    cv2.line(crop_img, (cx, 0), (cx, 720), (255, 0, 0), 1)
+                    cv2.line(crop_img, (0, cy), (1280, cy), (255, 0, 0), 1)
+                    cv2.drawContours(crop_img, contours, -1, (0, 255, 0), 1)
+                    print(cx, cy)
+
+                    if cx >= 120:
+                        adjust("r")
+                    if cx < 120 and cx > 50:
+                        turn_front()
+                    if cx <= 50:
+                        adjust("l")
+
+                # cv2.waitKey(1)
+
+                output.truncate(0)
+
 
 def angle_to_duty_cycle(angle=0):
     duty_cycle = (0.05 * PWM_FREQ) + (0.19 * PWM_FREQ * angle / 180)
     return duty_cycle
+
+def adjust(direction):
+    if direction == "r":
+        # turn right
+        angle = NORTH + 30
+    elif direction == "l":
+        # turn right
+        angle = NORTH - 30
+    else:
+        return
+
+    dc = angle_to_duty_cycle(angle)
+    pwm.ChangeDutyCycle(dc)
 
 def turn_front():
     dc = angle_to_duty_cycle(NORTH)
@@ -102,9 +157,7 @@ def guide(path):
             if count > 0:
                 t = t - 0.6
             timeout = time.time() + t
-            while time.time() <= timeout:
-                # picamera
-                continue
+            get_photo(timeout)
         else:
             # turn
             turn_angle(step)
