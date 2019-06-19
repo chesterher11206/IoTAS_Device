@@ -99,9 +99,9 @@ def get_photo(timeout):
 
                     if cx >= 120:
                         adjust("r")
-                    if cx < 120 and cx > 50:
+                    if cx < 120 and cx > 70:
                         turn_front()
-                    if cx <= 50:
+                    if cx <= 70:
                         adjust("l")
 
                 # cv2.waitKey(1)
