@@ -1,6 +1,7 @@
 import cv2
 from picamera.array import PiRGBArray
 from picamera import PiCamera
+import matplotlib.pyplot as plt
 import time
 
 
@@ -15,7 +16,7 @@ with PiCamera() as camera:
 
             crop_img = output.array
             gray = cv2.cvtColor(crop_img, cv2.COLOR_BGR2GRAY)
-            cv2.imshow("img", gray)
+            plt.imshow("img", cmap='gray')
             blur = cv2.GaussianBlur(gray, (5, 5), 0)
             ret, thresh = cv2.threshold(blur, 60, 255, cv2.THRESH_BINARY_INV)
 

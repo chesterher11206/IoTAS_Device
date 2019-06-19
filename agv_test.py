@@ -5,7 +5,7 @@ import time
 CONTROL_PIN = 17
 PWM_FREQ = 50
 STEP = 15
-NORTH = 88
+NORTH = 90
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(CONTROL_PIN, GPIO.OUT)
@@ -101,7 +101,10 @@ def guide(path):
             t = step * 2.5
             if count > 0:
                 t = t - 0.6
-            time.sleep(t)
+            timeout = time.time() + t
+            while time.time() <= timeout:
+                # picamera
+                continue
         else:
             # turn
             turn_angle(step)
