@@ -323,7 +323,7 @@ class Device(object):
             if message['message'] == "Guide Device":
                 print("Guiding...")
                 color = message['color']
-                station = message['station']
+                station = int(message['station'])
                 self.agv.guide(color, station)
         elif topic == "server/disconnect":
             if message['message'] == "Server Disconnect":
