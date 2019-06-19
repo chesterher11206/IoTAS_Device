@@ -10,7 +10,7 @@ import threading
 import requests
 import paho.mqtt.client as mqtt
 from rssi import predict_rssi
-from device_agv import AGV
+from agv import AGV
 
 
 def get_uuid(os_name):
