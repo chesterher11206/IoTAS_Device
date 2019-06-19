@@ -16,7 +16,7 @@ with PiCamera() as camera:
 
             crop_img = output.array
             gray = cv2.cvtColor(crop_img, cv2.COLOR_BGR2GRAY)
-            plt.imshow("img", cmap='gray')
+            plt.imshow(gray, cmap='gray')
             blur = cv2.GaussianBlur(gray, (5, 5), 0)
             ret, thresh = cv2.threshold(blur, 60, 255, cv2.THRESH_BINARY_INV)
 
