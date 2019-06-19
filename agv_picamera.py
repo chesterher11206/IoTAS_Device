@@ -7,6 +7,7 @@ import time
 
 with PiCamera() as camera:
     camera.rotation = 180
+    camera.start_preview()
     camera.resolution = (320, 240)
     time.sleep(1)
 

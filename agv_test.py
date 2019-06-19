@@ -68,6 +68,7 @@ def get_guide_path():
 def get_photo(timeout):
     with PiCamera() as camera:
         camera.rotation = 180
+        camera.start_preview()
         camera.resolution = (320, 240)
 
         with PiRGBArray(camera) as output:
