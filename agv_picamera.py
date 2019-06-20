@@ -2,8 +2,22 @@ import cv2
 import numpy as np
 from picamera.array import PiRGBArray
 from picamera import PiCamera
-import matplotlib.pyplot as plt
+import matplotlib as plt
 import time
+
+lower = dict()
+upper = dict()
+# define range of blue color in HSV
+lower['blue'] = np.array([110,50,50])
+upper['blue'] = np.array([130,255,255])
+
+# define range of green color in HSV 
+lower['green'] = np.array([50,100,100])
+upper['green'] = np.array([70,255,255])
+
+# define range of red color in HSV 
+lower['red'] = np.array([-10,100,100])
+upper['red'] = np.array([10,255,255])
 
 
 with PiCamera() as camera:
@@ -19,11 +33,10 @@ with PiCamera() as camera:
 
             crop_img = output.array
             hsv_img = cv2.cvtColor(crop_img, cv2.COLOR_BGR2HSV)
-            low_range = np.array([0, 123, 100])
-            high_range = np.array([5, 255, 255])
-            range_img = cv2.inRange(hsv_img, low_range, high_range)
-            gray = cv2.cvtColor(range_img, cv2.COLOR_BGR2GRAY)
-            plt.image.imsave('~/name.png', gray)
+            low_range = lower['green']
+            high_range = upper['green']
+            gray = cv2.inRange(hsv_img, low_range, high_range)
+            plt.image.imsave('green.png', gray)
             blur = cv2.GaussianBlur(gray, (5, 5), 0)
             ret, thresh = cv2.threshold(blur, 60, 255, cv2.THRESH_BINARY_INV)
 
