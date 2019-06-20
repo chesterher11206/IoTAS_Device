@@ -209,14 +209,14 @@ class AGV(object):
                     t = t - 1.5
                 while t > 0:
                     print("time: ", t)
-                    if t > 0.5:
-                        time.sleep(0.5)
+                    if t > 1:
+                        time.sleep(1)
                     else:
                         time.sleep(t)
                     self.motor_pwm.ChangeDutyCycle(0)
                     self.redirect(color)
                     self.motor_pwm.ChangeDutyCycle(40)
-                    t = t - 0.5
+                    t = t - 1
             else:
                 # turn
                 self.turn_angle(step, color)
