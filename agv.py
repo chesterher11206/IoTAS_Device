@@ -121,7 +121,7 @@ class AGV(object):
                             cx = int(M['m10']/M['m00'])
                             cy = int(M['m01']/M['m00'])
                         except:
-                            break
+                            continue
                         if cx == 159 and cy == 119:
                             if last_adjust == "l":
                                 self.adjust("r")
@@ -137,15 +137,15 @@ class AGV(object):
                         cv2.drawContours(crop_img, contours, -1, (0, 255, 0), 1)
 
                         print(cx, cy)
-                        if cx >= 190:
+                        if cx >= 170:
                             self.adjust("r")
                             last_adjust = "r"
-                        if cx < 190 and cx > 100:
+                        if cx < 170 and cx > 110:
                             self.turn_front()
                             output.truncate(0)
                             print("redirect success")
                             break
-                        if cx <= 100:
+                        if cx <= 110:
                             self.adjust("l")
                             last_adjust = "l"
 
@@ -156,16 +156,16 @@ class AGV(object):
         print("redirect")
         if direction == "r":
             # turn right
-            angle = self.NORTH + 30
+            angle = self.NORTH + 15
         elif direction == "l":
             # turn right
-            angle = self.NORTH - 30
+            angle = self.NORTH - 15
         else:
             return
 
         dc = self.angle_to_duty_cycle(angle)
         self.pwm.ChangeDutyCycle(dc)
-        self.motor_pwm.ChangeDutyCycle(15)
+        self.motor_pwm.ChangeDutyCycle(20)
         time.sleep(0.5)
         self.motor_pwm.ChangeDutyCycle(0)
 
@@ -185,7 +185,7 @@ class AGV(object):
         elif direction == "o":
             # turn opposite
             angle = self.NORTH + 30
-            t = 4.5
+            t = 4
         else:
             return
 
