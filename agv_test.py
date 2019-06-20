@@ -128,11 +128,59 @@ def get_photo(timeout, color):
 
                 output.truncate(0)
 
+def redirect(color):
+    with PiCamera() as camera:
+        camera.rotation = 180
+        camera.start_preview()
+        camera.resolution = (320, 240)
+
+        with PiRGBArray(camera) as output:
+            # camera.capture(output, 'rgb', use_video_port=True)
+            while True:
+                camera.capture(output, format="bgr")
+                crop_img = output.array
+                hsv_img = cv2.cvtColor(crop_img, cv2.COLOR_BGR2HSV)
+                low_range = lower[color]
+                high_range = upper[color]
+                gray = cv2.inRange(hsv_img, low_range, high_range)
+                blur = cv2.GaussianBlur(gray, (5, 5), 0)
+                ret, thresh = cv2.threshold(blur, 60, 255, cv2.THRESH_BINARY_INV)
+
+                image, contours, hierarchy = cv2.findContours(thresh.copy(), 1, cv2.CHAIN_APPROX_NONE)
+
+                if len(contours) > 0:
+                    contours = sorted(contours, key=cv2.contourArea)
+                    if len(contours) > 1:
+                        del contours[-1]
+                    c = max(contours, key=cv2.contourArea)
+                    M = cv2.moments(c)
+
+                    cx = int(M['m10']/M['m00'])
+                    cy = int(M['m01']/M['m00'])
+
+                    cv2.line(crop_img, (cx, 0), (cx, 720), (255, 0, 0), 1)
+                    cv2.line(crop_img, (0, cy), (1280, cy), (255, 0, 0), 1)
+                    cv2.drawContours(crop_img, contours, -1, (0, 255, 0), 1)
+
+                    print(cx, cy)
+                    if cx >= 170:
+                        adjust("r")
+                    if cx < 170 and cx > 110:
+                        turn_front()
+                        break
+                    if cx <= 110:
+                        adjust("l")
+
+                # cv2.waitKey(1)
+
+                output.truncate(0)
+
 def angle_to_duty_cycle(angle=0):
     duty_cycle = (0.05 * PWM_FREQ) + (0.19 * PWM_FREQ * angle / 180)
     return duty_cycle
 
 def adjust(direction):
+    print("redirect")
     if direction == "r":
         # turn right
         angle = NORTH + 30
@@ -144,6 +192,9 @@ def adjust(direction):
 
     dc = angle_to_duty_cycle(angle)
     pwm.ChangeDutyCycle(dc)
+    motor_pwm.ChangeDutyCycle(10)
+    time.sleep(1)
+    motor_pwm.ChangeDutyCycle(0)
 
 def turn_front():
     dc = angle_to_duty_cycle(NORTH)
@@ -182,8 +233,11 @@ def guide(path, color):
             t = step * 2.5
             if count > 0:
                 t = t - 0.6
-            timeout = time.time() + t
-            get_photo(timeout, color)
+            while t > 0:
+                time.sleep(1)
+                motor_pwm.ChangeDutyCycle(0)
+                redirect(color)
+                t = t - 1
         else:
             # turn
             turn_angle(step)
