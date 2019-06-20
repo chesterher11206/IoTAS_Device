@@ -2,7 +2,6 @@ import cv2
 import numpy as np
 from picamera.array import PiRGBArray
 from picamera import PiCamera
-import matplotlib as plt
 import time
 
 lower = dict()
@@ -36,13 +35,15 @@ with PiCamera() as camera:
             low_range = lower['green']
             high_range = upper['green']
             gray = cv2.inRange(hsv_img, low_range, high_range)
-            plt.image.imsave('green.png', gray)
             blur = cv2.GaussianBlur(gray, (5, 5), 0)
             ret, thresh = cv2.threshold(blur, 60, 255, cv2.THRESH_BINARY_INV)
 
             image, contours, hierarchy = cv2.findContours(thresh.copy(), 1, cv2.CHAIN_APPROX_NONE)
 
             if len(contours) > 0:
+                contours = sorted(contours, key=cv2.contourArea)
+                if len(contours) > 1:
+                    del contours[-1]
                 c = max(contours, key=cv2.contourArea)
                 M = cv2.moments(c)
 
@@ -54,11 +55,11 @@ with PiCamera() as camera:
                 cv2.drawContours(crop_img, contours, -1, (0, 255, 0), 1)
                 print(cx, cy)
 
-                if cx >= 120:
+                if cx >= 170:
                     pass
-                if cx < 120 and cx > 50:
+                if cx < 170 and cx > 110:
                     pass
-                if cx <= 50:
+                if cx <= 110:
                     pass
 
             # cv2.waitKey(1)

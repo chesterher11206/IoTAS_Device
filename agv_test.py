@@ -36,6 +36,20 @@ motor_pwm.start(0)
 GPIO.output(MOTOR_CONTROL_PIN1, False)
 GPIO.output(MOTOR_CONTROL_PIN2, True)
 
+lower = dict()
+upper = dict()
+# define range of blue color in HSV
+lower['blue'] = np.array([110,50,50])
+upper['blue'] = np.array([130,255,255])
+
+# define range of green color in HSV 
+lower['green'] = np.array([50,100,100])
+upper['green'] = np.array([70,255,255])
+
+# define range of red color in HSV 
+lower['red'] = np.array([-10,100,100])
+upper['red'] = np.array([10,255,255])
+
 # for guide path
 def get_guide_path():
     path_dict = dict()
@@ -65,27 +79,32 @@ def get_guide_path():
 
     return path_dict
 
-def get_photo(timeout):
+def get_photo(timeout, color):
     with PiCamera() as camera:
         camera.rotation = 180
         camera.start_preview()
         camera.resolution = (320, 240)
+        time.sleep(1)
 
         with PiRGBArray(camera) as output:
             # camera.capture(output, 'rgb', use_video_port=True)
             for foo in camera.capture_continuous(output, format="bgr", use_video_port=True):
                 if time.time() <= timeout:
                     break
-
                 crop_img = output.array
-                gray = cv2.cvtColor(crop_img, cv2.COLOR_BGR2GRAY)
-                plt.imshow(gray, cmap='gray')
+                hsv_img = cv2.cvtColor(crop_img, cv2.COLOR_BGR2HSV)
+                low_range = lower[color]
+                high_range = upper[color]
+                gray = cv2.inRange(hsv_img, low_range, high_range)
                 blur = cv2.GaussianBlur(gray, (5, 5), 0)
                 ret, thresh = cv2.threshold(blur, 60, 255, cv2.THRESH_BINARY_INV)
 
                 image, contours, hierarchy = cv2.findContours(thresh.copy(), 1, cv2.CHAIN_APPROX_NONE)
 
                 if len(contours) > 0:
+                    contours = sorted(contours, key=cv2.contourArea)
+                    if len(contours) > 1:
+                        del contours[-1]
                     c = max(contours, key=cv2.contourArea)
                     M = cv2.moments(c)
 
@@ -97,17 +116,16 @@ def get_photo(timeout):
                     cv2.drawContours(crop_img, contours, -1, (0, 255, 0), 1)
                     print(cx, cy)
 
-                    if cx >= 120:
+                    if cx >= 170:
                         adjust("r")
-                    if cx < 120 and cx > 70:
+                    if cx < 170 and cx > 110:
                         turn_front()
-                    if cx <= 70:
+                    if cx <= 110:
                         adjust("l")
 
                 # cv2.waitKey(1)
 
                 output.truncate(0)
-
 
 def angle_to_duty_cycle(angle=0):
     duty_cycle = (0.05 * PWM_FREQ) + (0.19 * PWM_FREQ * angle / 180)
@@ -152,7 +170,7 @@ def turn_angle(direction):
     # turn back
     turn_front()
 
-def guide(path):
+def guide(path, color):
     turn_front()
     count = 0
     for step in path:
@@ -163,7 +181,7 @@ def guide(path):
             if count > 0:
                 t = t - 0.6
             timeout = time.time() + t
-            get_photo(timeout)
+            get_photo(timeout, color)
         else:
             # turn
             turn_angle(step)
@@ -171,12 +189,12 @@ def guide(path):
     turn_front()
 
 def main():
-    # color = "red"
+    color = "red"
     # station = 4
     # path_dict = get_guide_path()
     # path = path_dict[color][station]
     path = [1, 'l', 2, 'r', 1]
-    guide(path)
+    guide(path, color)
 
 
 if __name__ == "__main__":
