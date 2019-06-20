@@ -222,6 +222,7 @@ class Device(object):
 
     def set_agv(self):
         self.agv = AGV()
+        self.guiding = False
 
     def receive_server(self):
         while True:
@@ -324,7 +325,11 @@ class Device(object):
                 print("Guiding...")
                 color = message['color']
                 station = int(message['station'])
-                self.agv.guide(color, station)
+                time.sleep(1)
+                if not self.guiding:
+                    self.guiding = True
+                    self.agv.guide(color, station)
+                    self.guiding = False
         elif topic == "server/disconnect":
             if message['message'] == "Server Disconnect":
                 self.is_connect = False
