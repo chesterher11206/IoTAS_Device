@@ -87,6 +87,7 @@ def redirect(color):
 
         with PiRGBArray(camera) as output:
             # camera.capture(output, 'rgb', use_video_port=True)
+            last_adjust = ""
             while True:
                 camera.capture(output, format="bgr")
                 crop_img = output.array
@@ -111,21 +112,33 @@ def redirect(color):
                         cy = int(M['m01']/M['m00'])
                     except:
                         break
+                    if cx == 159 and cy == 119:
+                        if last_adjust == "l":
+                            adjust("r")
+                            last_adjust = "r"
+                        elif last_adjust == "r":
+                            adjust("l")
+                            last_adjust = "l"
+                        output.truncate(0)
+                        continue
 
                     cv2.line(crop_img, (cx, 0), (cx, 720), (255, 0, 0), 1)
                     cv2.line(crop_img, (0, cy), (1280, cy), (255, 0, 0), 1)
                     cv2.drawContours(crop_img, contours, -1, (0, 255, 0), 1)
+                    cv2.imwrite("con.png", crop_img)
 
                     print(cx, cy)
-                    if cx >= 170:
+                    if cx >= 190:
                         adjust("r")
-                    if cx < 170 and cx > 110:
+                        last_adjust = "r"
+                    if cx < 190 and cx > 100:
                         turn_front()
                         output.truncate(0)
                         print("redirect success")
                         break
-                    if cx <= 110:
+                    if cx <= 100:
                         adjust("l")
+                        last_adjust = "l"
 
                 # cv2.waitKey(1)
                 output.truncate(0)
@@ -147,8 +160,8 @@ def adjust(direction):
 
     dc = angle_to_duty_cycle(angle)
     pwm.ChangeDutyCycle(dc)
-    motor_pwm.ChangeDutyCycle(10)
-    time.sleep(1)
+    motor_pwm.ChangeDutyCycle(15)
+    time.sleep(0.5)
     motor_pwm.ChangeDutyCycle(0)
 
 def turn_front():
@@ -186,15 +199,19 @@ def guide(path, color):
         if isinstance(step, int):
             # go direct
             motor_pwm.ChangeDutyCycle(40)
-            t = step * 2
+            t = step * 3
             if count > 0:
                 t = t - 1.5
             while t > 0:
-                time.sleep(1)
+                print("time: ", t)
+                if t > 0.5:
+                    time.sleep(0.5)
+                else:
+                    time.sleep(t)
                 motor_pwm.ChangeDutyCycle(0)
                 redirect(color)
                 motor_pwm.ChangeDutyCycle(40)
-                t = t - 1
+                t = t - 0.5
         else:
             # turn
             turn_angle(step, color)
@@ -203,10 +220,10 @@ def guide(path, color):
 
 def main():
     color = "red"
-    # station = 4
-    # path_dict = get_guide_path()
-    # path = path_dict[color][station]
-    path = [1, 'l', 1, 'r', 1, 'l', 3]
+    station = 4
+    path_dict = get_guide_path()
+    path = path_dict[color][station]
+    #path = [1, 'l', 1, 'r', 1, 'l', 3]
     guide(path, color)
 
 
