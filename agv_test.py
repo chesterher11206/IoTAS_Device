@@ -79,55 +79,6 @@ def get_guide_path():
 
     return path_dict
 
-def get_photo(timeout, color):
-    with PiCamera() as camera:
-        camera.rotation = 180
-        camera.start_preview()
-        camera.resolution = (320, 240)
-        time.sleep(1)
-
-        with PiRGBArray(camera) as output:
-            # camera.capture(output, 'rgb', use_video_port=True)
-            for foo in camera.capture_continuous(output, format="bgr", use_video_port=True):
-                if time.time() >= timeout:
-                    break
-                crop_img = output.array
-                hsv_img = cv2.cvtColor(crop_img, cv2.COLOR_BGR2HSV)
-                low_range = lower[color]
-                high_range = upper[color]
-                gray = cv2.inRange(hsv_img, low_range, high_range)
-                blur = cv2.GaussianBlur(gray, (5, 5), 0)
-                ret, thresh = cv2.threshold(blur, 60, 255, cv2.THRESH_BINARY_INV)
-
-                image, contours, hierarchy = cv2.findContours(thresh.copy(), 1, cv2.CHAIN_APPROX_NONE)
-
-                if len(contours) > 0:
-                    contours = sorted(contours, key=cv2.contourArea)
-                    if len(contours) > 1:
-                        del contours[-1]
-                    c = max(contours, key=cv2.contourArea)
-                    M = cv2.moments(c)
-
-                    cx = int(M['m10']/M['m00'])
-                    cy = int(M['m01']/M['m00'])
-
-                    cv2.line(crop_img, (cx, 0), (cx, 720), (255, 0, 0), 1)
-                    cv2.line(crop_img, (0, cy), (1280, cy), (255, 0, 0), 1)
-                    cv2.drawContours(crop_img, contours, -1, (0, 255, 0), 1)
-
-                    print("redirect")
-                    print(cx, cy)
-                    if cx >= 170:
-                        adjust("r")
-                    if cx < 170 and cx > 110:
-                        turn_front()
-                    if cx <= 110:
-                        adjust("l")
-
-                # cv2.waitKey(1)
-
-                output.truncate(0)
-
 def redirect(color):
     with PiCamera() as camera:
         camera.rotation = 180
@@ -155,8 +106,11 @@ def redirect(color):
                     c = max(contours, key=cv2.contourArea)
                     M = cv2.moments(c)
 
-                    cx = int(M['m10']/M['m00'])
-                    cy = int(M['m01']/M['m00'])
+                    try:
+                        cx = int(M['m10']/M['m00'])
+                        cy = int(M['m01']/M['m00'])
+                    except:
+                        break
 
                     cv2.line(crop_img, (cx, 0), (cx, 720), (255, 0, 0), 1)
                     cv2.line(crop_img, (0, cy), (1280, cy), (255, 0, 0), 1)
@@ -167,12 +121,13 @@ def redirect(color):
                         adjust("r")
                     if cx < 170 and cx > 110:
                         turn_front()
+                        output.truncate(0)
+                        print("redirect success")
                         break
                     if cx <= 110:
                         adjust("l")
 
                 # cv2.waitKey(1)
-
                 output.truncate(0)
 
 def angle_to_duty_cycle(angle=0):
@@ -200,11 +155,12 @@ def turn_front():
     dc = angle_to_duty_cycle(NORTH)
     pwm.ChangeDutyCycle(dc)
 
-def turn_angle(direction):
-    t = 1.5
+def turn_angle(direction, color):
+    t = 2
     if direction == "r":
         # turn right
         angle = NORTH + 30
+        t = 1
     elif direction == "l":
         # turn right
         angle = NORTH - 30
@@ -220,7 +176,7 @@ def turn_angle(direction):
     time.sleep(t)
 
     # turn back
-    turn_front()
+    redirect(color)
 
 def guide(path, color):
     turn_front()
@@ -230,17 +186,18 @@ def guide(path, color):
         if isinstance(step, int):
             # go direct
             motor_pwm.ChangeDutyCycle(40)
-            t = step * 2.5
+            t = step * 2
             if count > 0:
-                t = t - 0.6
+                t = t - 1.5
             while t > 0:
                 time.sleep(1)
                 motor_pwm.ChangeDutyCycle(0)
                 redirect(color)
+                motor_pwm.ChangeDutyCycle(40)
                 t = t - 1
         else:
             # turn
-            turn_angle(step)
+            turn_angle(step, color)
         count = count + 1
     turn_front()
 
@@ -249,7 +206,7 @@ def main():
     # station = 4
     # path_dict = get_guide_path()
     # path = path_dict[color][station]
-    path = [1, 'l', 2, 'r', 1]
+    path = [1, 'l', 1, 'r', 1, 'l', 3]
     guide(path, color)
 
 
