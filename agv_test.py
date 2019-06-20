@@ -89,7 +89,7 @@ def get_photo(timeout, color):
         with PiRGBArray(camera) as output:
             # camera.capture(output, 'rgb', use_video_port=True)
             for foo in camera.capture_continuous(output, format="bgr", use_video_port=True):
-                if time.time() <= timeout:
+                if time.time() >= timeout:
                     break
                 crop_img = output.array
                 hsv_img = cv2.cvtColor(crop_img, cv2.COLOR_BGR2HSV)
@@ -114,8 +114,9 @@ def get_photo(timeout, color):
                     cv2.line(crop_img, (cx, 0), (cx, 720), (255, 0, 0), 1)
                     cv2.line(crop_img, (0, cy), (1280, cy), (255, 0, 0), 1)
                     cv2.drawContours(crop_img, contours, -1, (0, 255, 0), 1)
-                    print(cx, cy)
 
+                    print("redirect")
+                    print(cx, cy)
                     if cx >= 170:
                         adjust("r")
                     if cx < 170 and cx > 110:
@@ -174,6 +175,7 @@ def guide(path, color):
     turn_front()
     count = 0
     for step in path:
+        print("step: ", step)
         if isinstance(step, int):
             # go direct
             motor_pwm.ChangeDutyCycle(40)
