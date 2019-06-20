@@ -89,7 +89,7 @@ class AGV(object):
         duty_cycle = (0.05 * self.PWM_FREQ) + (0.19 * self.PWM_FREQ * angle / 180)
         return duty_cycle
 
-    def redirect(color):
+    def redirect(self, color):
         with PiCamera() as camera:
             camera.rotation = 180
             camera.start_preview()
